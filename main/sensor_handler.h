@@ -4,7 +4,7 @@
 // Returns pressure in Pascals, or NAN if there was an error reading the value
 double sensor_bme280_get_pressure(void);
 
-// Returns humidity in % relative humidity, or NAN if there was an error reading the value
+// Returns temperature in degrees C, or NAN if there was an error reading the value
 double sensor_bme280_get_temperature(void);
 
 // Returns humidity in % relative humidity, or NAN if there was an error reading the value

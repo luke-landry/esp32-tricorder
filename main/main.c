@@ -138,7 +138,7 @@ int app_ble_on_gap_event(struct ble_gap_event *event, void *arg){
             }
             break;
         case BLE_GAP_EVENT_DISCONNECT:
-            ESP_LOGI(TAG_BLE, "Disconnected (BLE_GAP_EVENT_CONN_UPDATE), reason = %d", event->disconnect.reason);
+            ESP_LOGI(TAG_BLE, "Disconnected (BLE_GAP_EVENT_DISCONNECT), reason = %d", event->disconnect.reason);
             break;
         case BLE_GAP_EVENT_CONN_UPDATE:
             ESP_LOGI(TAG_BLE, "Connection update event  (BLE_GAP_EVENT_CONN_UPDATE), status = %d", event->conn_update.status);

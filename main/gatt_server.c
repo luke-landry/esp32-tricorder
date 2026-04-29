@@ -43,7 +43,7 @@ static int gattserver_access_pressure_cb(uint16_t conn_handle, uint16_t attr_han
             double raw_pressure_val = sensor_bme280_get_pressure();
 
             // NaN value indicates error reading from sensor
-            if(isnan(raw_pressure_val)) { return BLE_ATT_ERR_UNLIKELY; }\
+            if(isnan(raw_pressure_val)) { return BLE_ATT_ERR_UNLIKELY; }
 
             // BLE standard pressure value in units of Pascals (1 Pa)
             uint32_t pressure_val = (uint32_t)(round(raw_pressure_val));

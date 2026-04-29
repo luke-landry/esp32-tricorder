@@ -170,6 +170,11 @@ int sensor_bme280_get_measurements(struct bme280_data *measurement_data){
     // Reading status of the bme280 device to check if measurement is ready
     ESP_LOGI(TAG_BME280, "Reading bme280 status...");
     bme280_status = bme280_get_regs(BME280_REG_STATUS, &device_status, 1, &bme280_g);
+    if(bme280_status != 0){
+        sensor_bme280_print_status(bme280_status);
+        ESP_LOGE(TAG_BME280, "Could not read bme280 status register");
+        return -1;
+    }
     if(!(device_status & BME280_STATUS_MEAS_DONE)){
         ESP_LOGE(TAG_BME280, "bme280 not ready to read measurement");
         return -1;
