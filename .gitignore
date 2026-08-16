@@ -1,4 +1,5 @@
 build/
 .vscode/settings.json
 .devcontainer/
+managed_components/
 sdkconfig.old

@@ -31,3 +31,6 @@ Using the nRF Connect app connected to the ESP32-Tricorder to view the environme
 ![Data readings in nRF Connect](images/DataScreenshotnRFConnect.png)
 
 The Bosch BME280 driver is included as a component in components/bme280/, providing a hardware-agnostic API that `sensor_handler.c` wires to the ESP-IDF I2C driver.
+
+### Notes
+Bitmap font from https://github.com/dhepper/font8x8
