@@ -8,6 +8,7 @@
 #include "esp_log.h"
 
 #include "ble_task.h"
+#include "display.h"
 #include "sensor_handler.h"
 
 // Logging tags
@@ -56,6 +57,11 @@ bool app_init_ble(void){
     return true;
 }
 
+bool app_init_display(void){
+    ESP_LOGI(TAG_INIT, "Initializing display...");
+    return app_display_init();
+}
+
 void app_main(void){
 
     // Initializing sensor
@@ -73,6 +79,12 @@ void app_main(void){
     // Initializing BLE
     if(!app_init_ble()){
         ESP_LOGE(TAG_INIT, "BLE initialization failed, aborting...");
+        return;
+    }
+
+    // Initializing display
+    if(!app_init_display()){
+        ESP_LOGE(TAG_INIT, "Display initialization failed, aborting...");
         return;
     }
 }
