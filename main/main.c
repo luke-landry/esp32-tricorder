@@ -10,9 +10,13 @@
 #include "ble_task.h"
 #include "display.h"
 #include "sensor_handler.h"
+#include "sensor_task.h"
 
 // Logging tags
 #define TAG_INIT "Initialization"
+
+// Delay between periodic sensor readings
+#define SENSOR_TASK_PERIOD_MS 1000
 
 bool app_init_sensor(void){
     ESP_LOGI(TAG_INIT, "Initializing sensors...");
@@ -20,6 +24,17 @@ bool app_init_sensor(void){
     int status = sensor_init();
     if(status != 0){
         ESP_LOGE(TAG_INIT, "Error in %s: 0x%x (%s)", __func__, status, esp_err_to_name(status));
+        return false;
+    }
+
+    return true;
+}
+
+bool app_init_sensor_task(void){
+    ESP_LOGI(TAG_INIT, "Starting sensor task...");
+
+    if(!sensor_task_start(SENSOR_TASK_PERIOD_MS)){
+        ESP_LOGE(TAG_INIT, "Could not start sensor task");
         return false;
     }
 
@@ -78,6 +93,13 @@ void app_main(void){
         return;
     }
 
+    // Starting periodic sensor task
+    app_display_set_message_2("Starting sensor task...");
+    if(!app_init_sensor_task()){
+        ESP_LOGE(TAG_INIT, "Sensor task failed to start, aborting...");
+        app_display_set_message_2("Sensor task failed to start");
+        return;
+    }
 
     // Initializing non-volatile storage library to store BLE configuration data
     app_display_set_message_2("Initializing NVS...");

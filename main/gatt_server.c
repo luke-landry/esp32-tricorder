@@ -7,7 +7,7 @@
 #include "services/gap/ble_svc_gap.h"
 #include <math.h>
 
-#include "sensor_handler.h"
+#include "sensor_task.h"
 
 #include "gatt_server.h"
 
@@ -40,13 +40,13 @@ static int gattserver_access_pressure_cb(uint16_t conn_handle, uint16_t attr_han
 
     switch(ctxt->op){
         case BLE_GATT_ACCESS_OP_READ_CHR:
-            double raw_pressure_val = sensor_bme280_get_pressure();
+            sensor_reading_t reading;
 
-            // NaN value indicates error reading from sensor
-            if(isnan(raw_pressure_val)) { return BLE_ATT_ERR_UNLIKELY; }
+            // Missing/invalid cache indicates no successful reading has been taken yet
+            if(!sensor_task_get_cached_reading(&reading) || !reading.valid) { return BLE_ATT_ERR_UNLIKELY; }
 
             // BLE standard pressure value in units of Pascals (1 Pa)
-            uint32_t pressure_val = (uint32_t)(round(raw_pressure_val));
+            uint32_t pressure_val = (uint32_t)(round(reading.pressure));
 
             ESP_LOGI(TAG_GATTS, "Transmitting pressure value (units of 1 Pa): %lu", pressure_val);
             status = os_mbuf_append(ctxt->om, &pressure_val, sizeof(pressure_val));
@@ -79,13 +79,13 @@ static int gattserver_access_temperature_cb(uint16_t conn_handle, uint16_t attr_
 
     switch(ctxt->op){
         case BLE_GATT_ACCESS_OP_READ_CHR:
-            double raw_temperature_val = sensor_bme280_get_temperature();
+            sensor_reading_t reading;
 
-            // NaN value indicates error reading from sensor
-            if(isnan(raw_temperature_val)) { return BLE_ATT_ERR_UNLIKELY; }
+            // Missing/invalid cache indicates no successful reading has been taken yet
+            if(!sensor_task_get_cached_reading(&reading) || !reading.valid) { return BLE_ATT_ERR_UNLIKELY; }
 
             // BLE standard temperature value in units of hundredths of a degree C (0.01°C)
-            int16_t temperature_val = (int16_t)(round(raw_temperature_val * 100));
+            int16_t temperature_val = (int16_t)(round(reading.temperature * 100));
 
             ESP_LOGI(TAG_GATTS, "Transmitting temperature value (units of 0.01°C): %d", temperature_val);
             status = os_mbuf_append(ctxt->om, &temperature_val, sizeof(temperature_val));
@@ -118,13 +118,13 @@ static int gattserver_access_humidity_cb(uint16_t conn_handle, uint16_t attr_han
 
     switch(ctxt->op){
         case BLE_GATT_ACCESS_OP_READ_CHR:
-            double raw_humidity_val = sensor_bme280_get_humidity();
+            sensor_reading_t reading;
 
-            // NaN value indicates error reading from sensor
-            if(isnan(raw_humidity_val)) { return BLE_ATT_ERR_UNLIKELY; }
+            // Missing/invalid cache indicates no successful reading has been taken yet
+            if(!sensor_task_get_cached_reading(&reading) || !reading.valid) { return BLE_ATT_ERR_UNLIKELY; }
 
             // BLE standard humidity value in units of hundredeths of relative humidity percentage (0.01%)
-            uint16_t humidity_val = (uint16_t)(round(raw_humidity_val*100));
+            uint16_t humidity_val = (uint16_t)(round(reading.humidity*100));
 
             ESP_LOGI(TAG_GATTS, "Transmitting humidity value (units of 0.01%%): %d", humidity_val);
             status = os_mbuf_append(ctxt->om, &humidity_val, sizeof(humidity_val));

@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <rom/ets_sys.h>
-#include <math.h>
 
 #include "esp_log.h"
 
@@ -11,7 +10,6 @@
 #include "bme280.h"
 
 #include "sensor_handler.h"
-#include "display.h"
 
 // Pin definitions for SDA and SCL lines
 #define SDA_PIN GPIO_NUM_21
@@ -199,41 +197,8 @@ int sensor_bme280_get_measurements(struct bme280_data *measurement_data){
     ESP_LOGI(TAG_BME280, "Temperature: %.2f °C", measurement_data->temperature);
     ESP_LOGI(TAG_BME280, "Pressure: %.2f hPa", measurement_data->pressure / 100.0);
     ESP_LOGI(TAG_BME280, "Humidity: %.2f %%RH", measurement_data->humidity);
-    app_display_set_temperature(measurement_data->temperature);
-    app_display_set_pressure(measurement_data->pressure);
-    app_display_set_humidity(measurement_data->humidity);
 
     return 0;
-}
-
-// Returns pressure in Pascals, or NAN if there was an error reading the value
-// Wrapper function for sensor_bme280_get_measurements that returns only the pressure value
-double sensor_bme280_get_pressure(){
-    int status;
-    struct bme280_data measurement_data;
-    status = sensor_bme280_get_measurements(&measurement_data);
-    if(status != 0){ return NAN; }
-    return measurement_data.pressure;
-}
-
-// Returns temperature in degrees C, or NAN if there was an error reading the value
-// Wrapper function for sensor_bme280_get_measurements that returns only the temperature value
-double sensor_bme280_get_temperature(){
-    int status;
-    struct bme280_data measurement_data;
-    status = sensor_bme280_get_measurements(&measurement_data);
-    if(status != 0){ return NAN; }
-    return measurement_data.temperature;
-}
-
-// Returns humidity in % relative humidity, or NAN if there was an error reading the value
-// Wrapper function for sensor_bme280_get_measurements that returns only the humidity value
-double sensor_bme280_get_humidity(){
-    int status;
-    struct bme280_data measurement_data;
-    status = sensor_bme280_get_measurements(&measurement_data);
-    if(status != 0){ return NAN; }
-    return measurement_data.humidity;
 }
 
 int sensor_init(){
