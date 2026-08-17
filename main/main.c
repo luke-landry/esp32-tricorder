@@ -64,27 +64,36 @@ bool app_init_display(void){
 
 void app_main(void){
 
-    // Initializing sensor
-    if(!app_init_sensor()){
-        ESP_LOGE(TAG_INIT, "Sensor initialization failed, aborting...");
-        return;
-    }
-
-    // Initializing non-volatile storage library to store BLE configuration data
-    if(!app_init_nvs()){
-        ESP_LOGE(TAG_INIT, "NVS initialization failed, aborting...");
-        return;
-    }
-
-    // Initializing BLE
-    if(!app_init_ble()){
-        ESP_LOGE(TAG_INIT, "BLE initialization failed, aborting...");
-        return;
-    }
-
     // Initializing display
     if(!app_init_display()){
         ESP_LOGE(TAG_INIT, "Display initialization failed, aborting...");
         return;
     }
+
+    // Initializing sensor
+    app_display_set_message_2("Initializing sensor...");
+    if(!app_init_sensor()){
+        ESP_LOGE(TAG_INIT, "Sensor initialization failed, aborting...");
+        app_display_set_message_2("Sensor initialization failed");
+        return;
+    }
+
+
+    // Initializing non-volatile storage library to store BLE configuration data
+    app_display_set_message_2("Initializing NVS...");
+    if(!app_init_nvs()){
+        ESP_LOGE(TAG_INIT, "NVS initialization failed, aborting...");
+        app_display_set_message_2("NVS initialization failed");
+        return;
+    }
+
+    // Initializing BLE
+    app_display_set_message_2("Initializing BLE...");
+    if(!app_init_ble()){
+        ESP_LOGE(TAG_INIT, "BLE initialization failed, aborting...");
+        app_display_set_message_2("BLE initialization failed");
+        return;
+    }
+
+    app_display_set_message_2("Ready");
 }
