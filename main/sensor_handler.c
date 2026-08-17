@@ -11,6 +11,7 @@
 #include "bme280.h"
 
 #include "sensor_handler.h"
+#include "display.h"
 
 // Pin definitions for SDA and SCL lines
 #define SDA_PIN GPIO_NUM_21
@@ -198,6 +199,9 @@ int sensor_bme280_get_measurements(struct bme280_data *measurement_data){
     ESP_LOGI(TAG_BME280, "Temperature: %.2f °C", measurement_data->temperature);
     ESP_LOGI(TAG_BME280, "Pressure: %.2f hPa", measurement_data->pressure / 100.0);
     ESP_LOGI(TAG_BME280, "Humidity: %.2f %%RH", measurement_data->humidity);
+    app_display_set_temperature(measurement_data->temperature);
+    app_display_set_pressure(measurement_data->pressure);
+    app_display_set_humidity(measurement_data->humidity);
 
     return 0;
 }

@@ -6,6 +6,7 @@
 #include "host/ble_hs.h"
 #include "services/gap/ble_svc_gap.h"
 
+#include "display.h"
 #include "gatt_server.h"
 
 #define TAG_BLE "BLE"
@@ -119,16 +120,20 @@ int app_ble_on_gap_event(struct ble_gap_event *event, void *arg){
                 status = ble_gap_conn_find(event->connect.conn_handle, &conn_descriptor);
                 if(status != 0){
                     ESP_LOGE(TAG_BLE, "Error in %s: 0x%x", __func__, status);
+                    app_display_set_message_1("BLE error");
                     return -1;
                 }
 
                 app_ble_print_conn_descriptor(&conn_descriptor);
+                app_display_set_message_1("BLE connected");
             } else {
                 ESP_LOGW(TAG_BLE, "Connection unsuccessful");
+                app_display_set_message_1("BLE error");
             }
             break;
         case BLE_GAP_EVENT_DISCONNECT:
             ESP_LOGI(TAG_BLE, "Disconnected (BLE_GAP_EVENT_DISCONNECT), reason = %d", event->disconnect.reason);
+            app_display_set_message_1("BLE disconnected");
             break;
         case BLE_GAP_EVENT_CONN_UPDATE:
             ESP_LOGI(TAG_BLE, "Connection update event  (BLE_GAP_EVENT_CONN_UPDATE), status = %d", event->conn_update.status);
@@ -181,6 +186,7 @@ void app_ble_start_advertising(){
     status = ble_gap_adv_set_fields(&adv_fields);
     if(status != 0){
         ESP_LOGE(TAG_BLE, "Error in %s: 0x%x", __func__, status);
+        app_display_set_message_1("BLE error");
         return;
     }
 
@@ -196,8 +202,12 @@ void app_ble_start_advertising(){
     status = ble_gap_adv_start(address_type, NULL, BLE_HS_FOREVER, &adv_parameters, app_ble_on_gap_event, NULL);
     if(status != 0){
         ESP_LOGE(TAG_BLE, "Error in %s: 0x%x", __func__, status);
+        app_display_set_message_1("BLE error");
         return;
     }
+
+    // Advertising started, not yet connected to a peer
+    app_display_set_message_1("BLE disconnected");
 }
 
 // Callback when BLE stack synchronizes (is ready to start)
@@ -226,6 +236,7 @@ bool app_ble_start_task(void){
     esp_err_t status = nimble_port_init();
     if(status != 0){
         ESP_LOGE(TAG_BLE, "Error in %s: 0x%x (%s)", __func__, status, esp_err_to_name(status));
+        app_display_set_message_1("BLE error");
         return false;
     }
 
@@ -239,16 +250,18 @@ bool app_ble_start_task(void){
     // Set the BLE device name
     ESP_LOGI(TAG_BLE, "Setting device name...");
     status = ble_svc_gap_device_name_set("ESP32-Tricorder");
-    if(status != 0) { 
-        ESP_LOGE(TAG_BLE, "Error in %s: 0x%x", __func__,  status); 
-        return false; 
+    if(status != 0) {
+        ESP_LOGE(TAG_BLE, "Error in %s: 0x%x", __func__,  status);
+        app_display_set_message_1("BLE error");
+        return false;
     }
 
     ESP_LOGI(TAG_BLE, "Initializing GATT server...");
     status = gattserver_init();
-    if(status != 0) { 
-        ESP_LOGE(TAG_BLE, "Error in %s: 0x%x", __func__,  status); 
-        return false; 
+    if(status != 0) {
+        ESP_LOGE(TAG_BLE, "Error in %s: 0x%x", __func__,  status);
+        app_display_set_message_1("BLE error");
+        return false;
     }
 
     // Start NimBLE task
